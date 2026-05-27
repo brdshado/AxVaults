@@ -26,4 +26,24 @@ public class PermissionUtils {
 
         return vault <= max;
     }
+
+    public static int getPermissionBase(@NotNull Player player) {
+        int maxVal = 0;
+        int maxAllowedAmount = CONFIG.getInt("max-vault-amount", 100);
+        if (maxAllowedAmount == -1) maxAllowedAmount = 200; // default cap for iteration
+        
+        if (player.isOp()) return maxAllowedAmount;
+        
+        for (PermissionAttachmentInfo effectivePermission : player.getEffectivePermissions()) {
+            if (!effectivePermission.getValue()) continue;
+            if (effectivePermission.getPermission().equals("*")) return maxAllowedAmount;
+        }
+
+        for (int i = 1; i <= maxAllowedAmount; i++) {
+            if (player.hasPermission("axvaults.vault." + i)) {
+                if (i > maxVal) maxVal = i;
+            }
+        }
+        return maxVal;
+    }
 }

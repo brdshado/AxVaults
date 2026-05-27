@@ -6,6 +6,7 @@ folia-supported: true
 
 softdepend:
   - PlaceholderAPI
+  - BharatSync
 
 permissions:
   axvaults.vault.1:

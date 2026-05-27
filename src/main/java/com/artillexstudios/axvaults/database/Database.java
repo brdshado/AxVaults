@@ -26,6 +26,10 @@ public interface Database {
 
     void deleteVault(@NotNull UUID uuid, int num);
 
+    int getPurchasedSlots(@NotNull UUID uuid);
+
+    void savePurchasedSlots(@NotNull UUID uuid, int amount);
+
     void load();
 
     void disable();

@@ -24,6 +24,7 @@ public class VaultPlayer {
     private final UUID uuid;
     private final ConcurrentHashMap<Integer, Vault> vaultMap = new ConcurrentHashMap<>();
     private boolean loaded = false;
+    private int purchasedSlots = 0;
 
     public VaultPlayer(UUID uuid) {
         this.uuid = uuid;
@@ -39,6 +40,7 @@ public class VaultPlayer {
 
     public void load() {
         AxVaults.getDatabase().loadVaults(this);
+        this.purchasedSlots = AxVaults.getDatabase().getPurchasedSlots(uuid);
         loaded = true;
     }
 
@@ -51,11 +53,27 @@ public class VaultPlayer {
         return vaultMap;
     }
 
+    public int getPurchasedSlots() {
+        return purchasedSlots;
+    }
+
+    public void addPurchasedSlot() {
+        this.purchasedSlots++;
+        AxVaults.getDatabase().savePurchasedSlots(uuid, purchasedSlots);
+    }
+
+    public void setPurchasedSlots(int purchasedSlots) {
+        this.purchasedSlots = purchasedSlots;
+        AxVaults.getDatabase().savePurchasedSlots(uuid, purchasedSlots);
+    }
+
     @Nullable
     public Vault getVault(int num) {
         Player player = Bukkit.getPlayer(uuid);
         if (player != null) {
-            if (!PermissionUtils.hasPermission(player, num)) return null;
+            int permissionBase = PermissionUtils.getPermissionBase(player);
+            int totalSlots = permissionBase + purchasedSlots;
+            if (num > totalSlots) return null;
             if (!vaultMap.containsKey(num)) {
                 return addVault(new Vault(this, num, null, null));
             }

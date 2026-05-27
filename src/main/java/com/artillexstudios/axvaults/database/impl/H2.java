@@ -67,6 +67,20 @@ public class H2 implements Database {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+
+        String CREATE_TABLE3 = """
+                    CREATE TABLE IF NOT EXISTS `axvaults_players` (
+                      `uuid` VARCHAR(36) NOT NULL,
+                      `purchased_slots` INT NOT NULL DEFAULT 0,
+                      PRIMARY KEY (`uuid`)
+                    );
+                """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(CREATE_TABLE3)) {
+            stmt.executeUpdate();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override
@@ -211,6 +225,47 @@ public class H2 implements Database {
                     final String vault = rs.getString(2);
                     final Integer vaultInt = vault == null ? null : Integer.parseInt(vault);
                     PlacedVaults.addVault(Serializers.LOCATION.deserialize(rs.getString(1)), vaultInt);
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    public int getPurchasedSlots(@NotNull UUID uuid) {
+        String sql = "SELECT purchased_slots FROM axvaults_players WHERE uuid = ?;";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, uuid.toString());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return 0;
+    }
+
+    @Override
+    public void savePurchasedSlots(@NotNull UUID uuid, int amount) {
+        String sql = "SELECT * FROM axvaults_players WHERE uuid = ?;";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, uuid.toString());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    sql = "UPDATE axvaults_players SET purchased_slots = ? WHERE uuid = ?;";
+                    try (PreparedStatement stmt2 = conn.prepareStatement(sql)) {
+                        stmt2.setInt(1, amount);
+                        stmt2.setString(2, uuid.toString());
+                        stmt2.executeUpdate();
+                    }
+                } else {
+                    sql = "INSERT INTO axvaults_players(uuid, purchased_slots) VALUES (?, ?);";
+                    try (PreparedStatement stmt2 = conn.prepareStatement(sql)) {
+                        stmt2.setString(1, uuid.toString());
+                        stmt2.setInt(2, amount);
+                        stmt2.executeUpdate();
+                    }
                 }
             }
         } catch (SQLException ex) {

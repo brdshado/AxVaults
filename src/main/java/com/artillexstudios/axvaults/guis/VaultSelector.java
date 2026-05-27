@@ -154,7 +154,19 @@ public class VaultSelector {
                 it.setAmount(num % 64 == 0 ? 64 : num % 64);
 
             gui.update();
-            consumer.accept(new GuiItem(it));
+            final GuiItem guiItem = new GuiItem(it);
+            guiItem.setAction(event -> {
+                int permissionBase = com.artillexstudios.axvaults.utils.PermissionUtils.getPermissionBase(player);
+                int nextVault = permissionBase + vaultPlayer.getPurchasedSlots() + 1;
+                
+                if (!com.artillexstudios.axvaults.hooks.PremiumCoinsProvider.isHooked()) {
+                    MESSAGEUTILS.sendLang(player, "errors.purchases-disabled");
+                    return;
+                }
+                
+                new ConfirmPurchaseMenu(player, vaultPlayer, nextVault).open();
+            });
+            consumer.accept(guiItem);
         }
     }
 }

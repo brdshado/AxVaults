@@ -178,6 +178,13 @@
             <version>7.0.2</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>net.bharatmc</groupId>
+            <artifactId>BharatSync</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../BharatSync/BharatSync.jar</systemPath>
+        </dependency>
     </dependencies>
 
     <distributionManagement>
