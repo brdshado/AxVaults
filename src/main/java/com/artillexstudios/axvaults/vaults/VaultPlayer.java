@@ -46,7 +46,9 @@ public class VaultPlayer {
 
     public void load(CompletableFuture<VaultPlayer> cf) {
         load();
-        ThreadUtils.runSync(() -> cf.complete(this));
+        ThreadUtils.runSync(() -> {
+            cf.complete(this);
+        });
     }
 
     public ConcurrentHashMap<Integer, Vault> getVaultMap() {
